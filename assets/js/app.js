@@ -123,6 +123,114 @@ function renderProducts(category) {
         </div>
     `).join('');
 }
+
+function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    
+    if (!product) {
+        alert('Product not found!');
+        return;
+    }
+    
+    const existingItem = cart.find(item => item.id === productId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+    
+    renderCart();
+    updateSummary();
+}
+
+
+function renderCart() {
+    const cartEl = document.getElementById('cartItems');
+    if (!cartEl) return;
+    
+    cartEl.innerHTML = cart.length ? cart.map((item, index) => `
+        <div class="cart-item">
+            <div>
+                <strong>${item.name}</strong><br>
+                <small>Rs.${item.price.toFixed(2)} each</small>
+            </div>
+            <div class="cart-item-controls">
+                <button class="qty-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                <span style="min-width: 30px; text-align: center; font-weight: bold;">${item.quantity}</span>
+                <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
+            </div>
+        </div>
+    `).join('') : '<p style="text-align: center; color: #0000; padding: 20px;">Cart is empty</p>';
+}
+
+
+function updateQuantity(index, change) {
+    if (index < 0 || index >= cart.length) return;
+    
+    cart[index].quantity += change;
+    if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+    }
+    renderCart();
+    updateSummary();
+}
+
+function removeFromCart(index) {
+    if (index >= 0 && index < cart.length) {
+        cart.splice(index, 1);
+    }
+    renderCart();
+    updateSummary();
+}
+
+
+function updateSummary() {
+    const subtotalEl = document.getElementById('subtotal');
+    const taxEl = document.getElementById('tax');
+    const totalEl = document.getElementById('total');
+    
+    if (!subtotalEl || !taxEl || !totalEl) return;
+    
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.05; 
+    const total = subtotal + tax;
+    
+    subtotalEl.textContent = `Rs.${subtotal.toFixed(2)}`;
+    taxEl.textContent = `Rs.${tax.toFixed(2)}`;
+    totalEl.textContent = `Rs.${total.toFixed(2)}`;
+}
+function checkout() {
+    if (!cart.length) {
+        alert('Cart is empty!');
+        return;
+    }
+    
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const tax = subtotal * 0.05;
+    const total = subtotal + tax;
+    
+    const order = {
+        id: nextOrderId++,
+        customerId: customers[0]?.id || null,
+        items: [...cart],
+        subtotal,
+        tax,
+        total,
+        date: new Date().toLocaleString('en-LK', { timeZone: 'Asia/Colombo' })
+    };
+    
+    orders.unshift(order);
+    cart = [];
+    
+    renderCart();
+    updateSummary();
+    renderOrders(); 
+    
+    alert(`Order #${order.id} completed!\nTotal: Rs.${total.toFixed(2)}\nReceipt printed successfully!`);
+}
+
 // Customer Management
 function addCustomer() {
     const name = document.getElementById('customerName').value.trim();
