@@ -67,6 +67,62 @@ let nextCustomerId = 1;
 let nextOrderId = 1;
 
 
+function renderProducts(category) {
+    const grid = document.getElementById('productsGrid');
+
+    
+    if (!category) {
+        grid.innerHTML = `
+            <div class="grid-items" data-category="vegetables">
+                <div class="img-card" onclick="renderProducts('vegetables')">
+                    <img src="assets/img/veg 2.jpg" alt="Vegetables">
+                    <h3>Vegetables</h3>
+                </div>
+            </div>
+            <div class="grid-items" data-category="fruits">
+                <div class="img-card" onclick="renderProducts('fruits')">
+                    <img src="assets/img/fruits.jpg" alt="Fruits">
+                    <h3>Fruits</h3>
+                </div>
+            </div>
+            <div class="grid-items" data-category="meat">
+                <div class="img-card" onclick="renderProducts('meat')">
+                    <img src="assets/img/meat" alt="Meat">
+                    <h3>Meat</h3>
+                </div>
+            </div>
+            <div class="grid-items" data-category="grocery">
+                <div class="img-card" onclick="renderProducts('grocery')">
+                    <img src="assets/img/grocery" alt="Grocery Items">
+                    <h3>Grocery Items</h3>
+                </div>
+            </div>
+            <div class="grid-items" data-category="fish">
+                <div class="img-card" onclick="renderProducts('fish')">
+                    <img src="assets/img/fish" alt="Fish">
+                    <h3>Fish</h3>
+                </div>
+            </div>
+            <div class="grid-items" data-category="beverages">
+                <div class="img-card" onclick="renderProducts('beverages')">
+                    <img src="assets/img/beverage" alt="Beverages">
+                    <h3>Beverages</h3>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const filteredProducts = products.filter(product => product.category === category);
+    grid.innerHTML = filteredProducts.map(product => `
+        <div class="grid-items" data-product-id="${product.id}">
+            <div class="img-card" onclick="addToCart(${product.id})">
+                <h3>${product.name}</h3>
+                <div class="product-price">Rs. ${product.price.toFixed(2)}</div>
+            </div>
+        </div>
+    `).join('');
+}
 // Customer Management
 function addCustomer() {
     const name = document.getElementById('customerName').value.trim();
@@ -123,13 +179,8 @@ function renderOrders() {
 function switchTab(tabName) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-
-    
-    // Add active to clicked button - get event target safely
     const eventTarget = event?.target || this;
     eventTarget.classList.add('active');
-
-    // Add active to corresponding tab content
     const tabToShow = document.getElementById(tabName);
     if (tabToShow) tabToShow.classList.add('active');
 }
